@@ -1,32 +1,34 @@
 const multer = require('multer');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary'); // Import konfigurasi Cloudinary
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+// Konfigurasi CloudinaryStorage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'project_tos/uploads',
   }
-})
+});
 
+// Filter File
 const filterFile = (req, file, cb) => {
-  const allowedFileType = /pdf|doc|docx|ppt|pptx/;
-  const extname = allowedFileType.test(path.extname(file.originalname).toLocaleLowerCase());
+  const allowedFileType = /pdf|doc|docx|ppt|pptx/; // Ekstensi yang diizinkan
+  const extname = allowedFileType.test(
+    file.originalname.toLowerCase().split('.').pop()
+  );
 
   if (extname) {
-    return cb(null, true);
+    return cb(null, true); // File diterima
   }
 
-  cb(new Error('File yang di upload berupa PDF, DOC, DOCX, PPT, PPTX'));
-}
+  // File ditolak
+  cb(new Error('File harus berupa PDF, DOC, DOCX, PPT, atau PPTX'));
+};
 
-const upload = multer({
-  storage: storage,
-  fileFilter: filterFile,
-  limits: {
-    fileSize: 10 * 1024 * 1024 //limit file yang di upload 10mb
-  }
-})
+
+const upload = multer({ 
+  storage: storage, 
+  fileFilter: filterFile
+});
 
 module.exports = upload;

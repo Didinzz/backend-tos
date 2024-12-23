@@ -10,7 +10,7 @@ const {
   // getModulByPertemuan,
   getModulByMatakuliah,
   readModulFile,
-  donwloadModulFile,
+  downloadModulFile,
   searchModul
 } = require('../controllers/modulController');
 
@@ -33,6 +33,6 @@ router
   router.get('/matkul/:matakuliah', getModulByMatakuliah);
   
 router.get('/:modulId/read', readModulFile);
-router.get('/:modulId/download', donwloadModulFile);
+router.get('/:modulId/download', downloadModulFile);
 
 module.exports = router;

@@ -3,6 +3,7 @@ const Matakuliah = require('../models/Matakuliah');
 const fs = require('fs');
 const path = require('path');
 const { Op } = require('sequelize');
+const cloudinary = require('../config/cloudinary');
 
 exports.createModul = async (req, res) => {
     try {
@@ -15,15 +16,15 @@ exports.createModul = async (req, res) => {
 
         const matakuliah = await Matakuliah.findByPk(matakuliahId);
         if (!matakuliah) {
-            fs.unlinkSync(file.path);
             return res.status(404).json({ message: 'Matakuliah tidak ditemukan' });
         }
 
         const modul = await Modul.create({
             title,
-            fileUrl: file.path,
+            fileUrl: file.path, // URL Cloudinary
             pertemuanKe,
-            matakuliahId
+            matakuliahId,
+            publicId: file.filename, // public_id Cloudinary
         });
 
         const modulWithRelations = await Modul.findByPk(modul.id, {
@@ -41,6 +42,7 @@ exports.createModul = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 exports.getAllModul = async (req, res) => {
     try {
@@ -177,11 +179,12 @@ exports.deleteModul = async (req, res) => {
             return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
         }
 
-        // Delete file from storage
-        if (fs.existsSync(modul.fileUrl)) {
-            fs.unlinkSync(modul.fileUrl);
+        // Hapus file dari Cloudinary
+        if (modul.publicId) {
+            await cloudinary.uploader.destroy(modul.publicId, { resource_type: 'raw' });
         }
 
+        // Hapus data modul dari database
         await modul.destroy();
 
         res.status(200).json({ status: 200, message: 'Modul berhasil dihapus' });
@@ -195,46 +198,54 @@ exports.readModulFile = async (req, res) => {
         const { modulId } = req.params;
         const modul = await Modul.findByPk(modulId);
 
-        // pengecekan apakah modul ada
+        // Pengecekan apakah modul ada
         if (!modul) {
             return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
         }
 
-        // pengecekan apakah file ada
-        const filePath = modul.fileUrl;
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ message: 'File Tidak Ditemukan' });
+        // URL file Cloudinary
+        const fileUrl = modul.fileUrl;
+        if (!fileUrl) {
+            return res.status(404).json({ message: 'File Tidak Ditemukan di Cloudinary' });
         }
 
         // Return URL file yang dapat diakses
-        const fileUrl = `${process.env.BASE_URL}/${modul.fileUrl}`;  // Sesuaikan dengan path yang sesuai
-        return res.status(200).json({ message: 'File berhasil diLoad', fileUrl });
+        return res.status(200).json({
+            message: 'File berhasil dimuat',
+            fileUrl: fileUrl,
+        });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 
-exports.donwloadModulFile = async (req, res) => {
+
+exports.downloadModulFile = async (req, res) => {
     try {
         const { modulId } = req.params;
         const modul = await Modul.findByPk(modulId);
 
-        // pengecekan apakah modul ada
+        // Pengecekan apakah modul ada
         if (!modul) {
             return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
         }
 
-        // url relative to base url
-        const fileName = path.basename(modul.fileUrl);
-        const fileUrl = `/uploads/${fileName}`;
+        // Pastikan URL file tersedia
+        if (!modul.fileUrl) {
+            return res.status(404).json({ message: 'File Tidak Ditemukan' });
+        }
 
-        // Return URL file yang dapat diakses
-        return res.status(200).json({ message: 'File berhasil diLoad', url: fileUrl });
+        // Kembalikan URL file
+        res.status(200).json({
+            message: 'File berhasil ditemukan',
+            url: modul.fileUrl,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
+
 
 exports.searchModul = async (req, res) => {
     try {

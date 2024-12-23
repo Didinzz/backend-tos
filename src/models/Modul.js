@@ -15,6 +15,10 @@ const Modul = sequelize.define('Modul', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  publicId: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   pertemuanKe: {
     type: DataTypes.INTEGER,
     allowNull: false
@@ -27,6 +31,8 @@ const Modul = sequelize.define('Modul', {
       key: 'id'
     }
   }
+}, {
+  tableName: 'moduls'
 });
 
 

@@ -3,6 +3,8 @@ const User = require('../models/User');
 const Modul = require('../models/Modul');
 const { Op } = require('sequelize');
 const MatakuliahDosen = require('../models/MatakuliahDosen');
+const cloudinary = require('../config/cloudinary');
+
 
 exports.createMatakuliah = async (req, res) => {
   try {
@@ -190,8 +192,8 @@ exports.deleteMatakuliah = async (req, res) => {
 
     // Delete associated modules and their files
     for (const modul of matakuliah.moduls) {
-      if (modul.fileUrl && require('fs').existsSync(modul.fileUrl)) {
-        require('fs').unlinkSync(modul.fileUrl);
+      if (modul.publicId) {
+         await cloudinary.uploader.destroy(modul.publicId, { resource_type: 'raw' });
       }
       await modul.destroy();
     }

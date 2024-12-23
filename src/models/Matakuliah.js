@@ -23,6 +23,8 @@ const Matakuliah = sequelize.define('Matakuliah', {
     type: DataTypes.INTEGER,
     allowNull: false
   }
+}, {
+  tableName: 'matakuliahs'
 });
 
 MatakuliahDosen.belongsTo(Matakuliah, {
