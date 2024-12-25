@@ -96,7 +96,7 @@ exports.getMatakuliahById = async (req, res) => {
         {
           model: Modul,
           as: 'moduls',
-          attributes: ['id', 'title',  'fileUrl', 'pertemuanKe']
+          attributes: ['id', 'title',  'fileUrl', 'pertemuanKe', 'createdAt', 'updatedAt']
         }
       ]
     });
