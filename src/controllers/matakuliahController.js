@@ -193,7 +193,7 @@ exports.deleteMatakuliah = async (req, res) => {
     // Delete associated modules and their files
     for (const modul of matakuliah.moduls) {
       if (modul.publicId) {
-         await cloudinary.uploader.destroy(modul.publicId, { resource_type: 'raw' });
+         await cloudinary.uploader.destroy(modul.publicId);
       }
       await modul.destroy();
     }

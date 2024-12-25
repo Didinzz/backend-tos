@@ -173,16 +173,16 @@ exports.updateModul = async (req, res) => {
 exports.deleteModul = async (req, res) => {
     try {
         const { id } = req.params;
-        const modul = await Modul.findByPk(id);
 
+        const modul = await Modul.findByPk(id);
         if (!modul) {
             return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
         }
 
+        console.log("🚀 Public ID yang akan dihapus:", modul.publicId);
+
         // Hapus file dari Cloudinary
-        if (modul.publicId) {
-            await cloudinary.uploader.destroy(modul.publicId, { resource_type: 'raw' });
-        }
+        const result = await cloudinary.uploader.destroy(modul.publicId);
 
         // Hapus data modul dari database
         await modul.destroy();
@@ -192,6 +192,7 @@ exports.deleteModul = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 exports.readModulFile = async (req, res) => {
     try {

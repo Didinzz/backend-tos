@@ -5,9 +5,6 @@ const cloudinary = require('../config/cloudinary'); // Import konfigurasi Cloudi
 // Konfigurasi CloudinaryStorage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'project_tos/uploads',
-  }
 });
 
 // Filter File
