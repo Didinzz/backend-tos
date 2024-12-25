@@ -17,8 +17,6 @@ require('dotenv').config();
 
 const app = express();
 
-const cors = require('cors');
-
 app.use(cors({
   origin: 'https://e-learning-informatika.vercel.app', // Ganti dengan domain frontend Anda
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
