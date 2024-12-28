@@ -18,7 +18,7 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-  origin: 'https://e-learning-informatika.vercel.app', // Ganti dengan domain frontend Anda
+  origin: ['https://e-learning-informatika.vercel.app', 'http://localhost:3000'], // Ganti dengan domain frontend Anda
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
   credentials: true, // Izinkan pengiriman cookies atau credentials lainnya
   allowedHeaders: ['Content-Type', 'Authorization'], // Header yang diperbolehkan
