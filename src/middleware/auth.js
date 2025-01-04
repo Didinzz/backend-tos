@@ -11,14 +11,14 @@ exports.protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({ message: 'Not authorized to access this route' });
+      return res.status(401).json({ code: 401, status: 'unauthorized', message: 'Tidak ada akses token' });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = await User.findByPk(decoded.id);
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Not authorized to access this route' });
+    res.status(401).json({ code: 401, status: 'unauthorized', message: 'Tidak ada akses token' });
   }
 };
 
@@ -26,7 +26,9 @@ exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
-        message: 'User role is not authorized to access this route'
+        code: 403,
+        status: 'forbidden',
+        message: 'Anda tidak memiliki izin untuk mengakses halaman ini',
       });
     }
     next();

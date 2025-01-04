@@ -24,6 +24,8 @@ exports.countAllTable = async (req, res) => {
       ]);
   
       res.status(200).json({
+        code: 200,
+        status: "ok",
         message: "Berhasil mengambil data",
         pengguna: countUser,
         dosen: countDosen,
@@ -31,7 +33,7 @@ exports.countAllTable = async (req, res) => {
         matakuliah: countMatakuliah
       });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ code: 500, status: 'internal_server_error', message: error.message });
     }
   };
   

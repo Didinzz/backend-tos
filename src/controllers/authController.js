@@ -9,7 +9,7 @@ exports.register = async (req, res) => {
 
     const userExists = await User.findOne({ where: { email } });
     if (userExists) {
-      return res.status(400).json({ message: 'Email Sudah Pernah Digunakan' });
+      return res.status(400).json({ code: 400, status: 'bad_request', message: 'Email Sudah Pernah Digunakan' });
     }
 
     const user = await User.create({
@@ -24,6 +24,8 @@ exports.register = async (req, res) => {
     });
 
     res.status(201).json({
+      code: 201,
+      status: 'created',
       message: 'Selamat, anda berhasil mendaftar',
       token,
       user: {
@@ -34,7 +36,7 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error: error.message });
+    res.status(500).json({ code: 500, status: 'internal_server_error', message: 'Error registering user', error: error.message });
   }
 };
 
@@ -44,12 +46,12 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({ where: { email } });
     if (!user || user.role !== role) {
-      return res.status(401).json({ message: 'Email, password, atau role salah' });
+      return res.status(401).json({ code: 401, status: 'unauthorized', message: 'Email, password, atau role salah' });
     }
 
     const isPasswordValid = await user.comparePassword(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Email, password, atau role salah' });
+      return res.status(401).json({ code: 401, status: 'unauthorized', message: 'Email, password, atau role salah' });
     }
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
@@ -57,6 +59,8 @@ exports.login = async (req, res) => {
     });
 
     res.json({
+      code: 200,
+      status: 'ok',
       message: 'Login successful',
       token,
       user: {
@@ -67,6 +71,6 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', message: 'Error logging in', error: error.message });
   }
 };

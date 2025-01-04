@@ -26,6 +26,14 @@ app.use(cors({
 
 app.use(express.json());
 
+
+app.get('/', (req, res) => {
+    res.status(200).json({
+        code:200,
+        status: 'ok',
+        message: 'Hai selamat datang di route backend E-Learning Informatika😁, berikut adalah beberapa route yang tersedia: /api/users, /api/auth, /api/matakuliah, /api/modul, /api/lastseen, /api/count'
+     });
+})
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
@@ -34,6 +42,13 @@ app.use('/api/matakuliah', matakuliahRoutes);
 app.use('/api/modul', modulRoutes);
 app.use('/api/lastseen', lastSeenRoutes);
 app.use('/api/count', countRoutes);
+app.use((_, res) => {
+  res.status(404).json({
+    code: 404,
+    status: 'error',
+    message: 'tidak ada route apapun disini atau kosong😢',
+  });
+})
 
 app.use(errorHandler)
 

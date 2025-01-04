@@ -20,7 +20,7 @@ exports.createMatakuliah = async (req, res) => {
 
 
     if (dosens.length !== dosenIds.length) {
-      return res.status(404).json({ message: 'masukan setidaknya satu dosen atau id dosen tidak ditemukan' });
+      return res.status(404).json({code: 404, status: 'not found', message: 'masukan setidaknya satu dosen atau id dosen tidak ditemukan' });
     }
 
     const matakuliah = await Matakuliah.create({
@@ -50,11 +50,13 @@ exports.createMatakuliah = async (req, res) => {
     });
 
     res.status(201).json({
+      code: 201,
+      status: 'created',
       message: 'Matakuliah berhasil ditambahkan',
       data: result || { moduls: [] }
     });
   } catch (error) {
-    res.status(500).json({ status: 500, message: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', status: 500, message: error.message });
   }
 };
 
@@ -76,9 +78,9 @@ exports.getAllMatakuliah = async (req, res) => {
       ]
     });
 
-    res.json({ data: matakuliah });
+    res.status(200).json({code: 200, status: 'success', message: 'Matakuliah ditemukan', data: matakuliah });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
   }
 };
 
@@ -102,12 +104,12 @@ exports.getMatakuliahById = async (req, res) => {
     });
 
     if (!matakuliah) {
-      return res.status(404).json({ message: 'Matakuliah not found' });
+      return res.status(404).json({code: 404, status: 'not found', message: 'Matakuliah not found' });
     }
 
-    res.json({ data: matakuliah });
+    res.status(200).json({code: 200, status: 'success', message: 'Matakuliah ditemukan', data: matakuliah });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
   }
 };
 
@@ -118,7 +120,7 @@ exports.updateMatakuliah = async (req, res) => {
     const matakuliah = await Matakuliah.findByPk(id);
 
     if (!matakuliah) {
-      return res.status(404).json({ message: 'Matakuliah not found' });
+      return res.status(404).json({code: 404, status: 'not found', message: 'Matakuliah tidak ditemukan' });
     }
 
     if (dosenIds) {
@@ -131,7 +133,7 @@ exports.updateMatakuliah = async (req, res) => {
       });
 
       if (dosens.length !== dosenIds.length) {
-        return res.status(404).json({ message: 'One or more dosens not found or not authorized' });
+        return res.status(404).json({code: 404, status: 'not found', message: 'masukan setidaknya satu dosen atau id dosen tidak ditemukan' });
       }
 
       // Update dosen associations4c.\
@@ -163,11 +165,13 @@ exports.updateMatakuliah = async (req, res) => {
     });
 
     res.json({
+      code: 200,
+      status: 'ok',
       message: 'Matakuliah berhasil diupdate',
       data: updatedMatakuliah
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
   }
 };
 
@@ -184,7 +188,7 @@ exports.deleteMatakuliah = async (req, res) => {
     });
 
     if (!matakuliah) {
-      return res.status(404).json({ message: 'Matakuliah not found' });
+      return res.status(404).json({code: 404, status: 'not found', message: 'Matakuliah tidak ditemukan' });
     }
 
     // Remove all dosen associations
@@ -201,9 +205,9 @@ exports.deleteMatakuliah = async (req, res) => {
     // Delete the matakuliah
     await matakuliah.destroy();
 
-    return res.status(200).json({ status: 200, message: 'Matakuliah berhasil dihapus' });
+    return res.status(200).json({ code: 200, status: 'ok', message: 'Matakuliah berhasil dihapus' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
   }
 };
 
@@ -212,7 +216,7 @@ exports.searchMatakuliah = async (req, res) => {
     const { keyword } = req.query;
 
     if (!keyword) {
-      return res.status(400).json({ message: 'Keyword wajib di isi' });
+      return res.status(400).json({code: 400, status: 'bad request', message: 'Keyword wajib di isi' });
     }
 
     const matakuliahList = await Matakuliah.findAll({
@@ -236,16 +240,18 @@ exports.searchMatakuliah = async (req, res) => {
     })
 
     if(matakuliahList.length === 0 ){
-      return res.status(404).json({ message: 'Tidak dapat menemukan matakuliah' });
+      return res.status(404).json({code: 404, status: 'not found', message: 'Tidak dapat menemukan matakuliah' });
     }
 
       res.status(200).json({
+        code: 200,
+        status: 'ok',
         message: 'Matakuliah ditemukan',
         data: matakuliahList
       });
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
   }
 }
 
@@ -269,11 +275,11 @@ exports.getMatakuliahDosen =  async (req, res) => {
     const matakuliahDosen = matakuliah.map(matakuliah => matakuliah.matakuliah);
 
     if(!matakuliah || matakuliah.length === 0){
-      res.status(200).json({ message: 'Dosen ini belum menampung matakuliah' });
+      res.status(200).json({code: 200, status: 'ok', message: 'Dosen ini belum menampung matakuliah' });
     }
-    return res.status(200).json({ message: 'Matakuliah ditemukan', data: matakuliahDosen });
+    return res.status(200).json({code: 200, status: 'ok', message: 'Matakuliah ditemukan', data: matakuliahDosen });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
   }
 }
 

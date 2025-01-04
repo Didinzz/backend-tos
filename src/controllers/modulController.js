@@ -11,12 +11,12 @@ exports.createModul = async (req, res) => {
         const file = req.file;
 
         if (!file) {
-            return res.status(400).json({ message: 'Silahkan upload modul' });
+            return res.status(400).json({ code: 400, status:'bad request', message: 'Silahkan upload modul' });
         }
 
         const matakuliah = await Matakuliah.findByPk(matakuliahId);
         if (!matakuliah) {
-            return res.status(404).json({ message: 'Matakuliah tidak ditemukan' });
+            return res.status(404).json({ code: 404, status:'not found', message: 'Matakuliah tidak ditemukan' });
         }
 
         const modul = await Modul.create({
@@ -35,11 +35,13 @@ exports.createModul = async (req, res) => {
         });
 
         res.status(201).json({
+            code: 201,
+            status: 'created',
             message: 'Modul baru berhasil ditambahkan',
             data: modulWithRelations
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
     }
 };
 
@@ -53,9 +55,9 @@ exports.getAllModul = async (req, res) => {
             }]
         });
 
-        res.json({ data: moduls });
+        res.status(200).json({code: 200, status: 'success', message: 'Modul ditemukan', data: moduls });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
     }
 };
 
@@ -69,12 +71,12 @@ exports.getModulById = async (req, res) => {
         });
 
         if (!modul) {
-            return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
+            return res.status(404).json({code: 404, status: 'not found', message: 'Modul Tidak Ditemukan' });
         }
 
-        res.json({ data: modul });
+        res.status(200).json({code: 200, status: 'success', message: 'Modul ditemukan', data: modul });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
     }
 };
 
@@ -112,13 +114,13 @@ exports.getModulByMatakuliah = async (req, res) => {
         });
 
         if (!modul) {
-            return res.status(404).json({ message: "Tidak ada modul di mtakuliah ini atau matakuliah tidak ditemukan" });
+            return res.status(404).json({code: 404, status: 'not found', message: "Tidak ada modul di mtakuliah ini atau matakuliah tidak ditemukan" });
         }
 
-        return res.status(200).json({ message: `Berhasil mengambil data di modul`, data: modul });
+        return res.status(200).json({ code: 200, status: 'success', message: `Berhasil mengambil data di modul`, data: modul });
 
     } catch (error) {
-
+        res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
     }
 }
 exports.updateModul = async (req, res) => {
@@ -176,10 +178,9 @@ exports.deleteModul = async (req, res) => {
 
         const modul = await Modul.findByPk(id);
         if (!modul) {
-            return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
+            return res.status(404).json({ code: 404, status: 'not found', message: 'Modul Tidak Ditemukan' });
         }
 
-        console.log("🚀 Public ID yang akan dihapus:", modul.publicId);
 
         // Hapus file dari Cloudinary
         const result = await cloudinary.uploader.destroy(modul.publicId);
@@ -187,9 +188,9 @@ exports.deleteModul = async (req, res) => {
         // Hapus data modul dari database
         await modul.destroy();
 
-        res.status(200).json({ status: 200, message: 'Modul berhasil dihapus' });
+        res.status(200).json({code: 200, status: 'ok', message: 'Modul berhasil dihapus' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({code: 500, status: 'internal_server_error', message: error.message });
     }
 };
 
@@ -201,23 +202,25 @@ exports.readModulFile = async (req, res) => {
 
         // Pengecekan apakah modul ada
         if (!modul) {
-            return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
+            return res.status(404).json({ code: 404, status: 'not found', message: 'Modul Tidak Ditemukan' });
         }
 
         // URL file Cloudinary
         const fileUrl = modul.fileUrl;
         if (!fileUrl) {
-            return res.status(404).json({ message: 'File Tidak Ditemukan di Cloudinary' });
+            return res.status(404).json({ code: 404, status: 'not found', message: 'File Tidak Ditemukan di Cloudinary' });
         }
 
         // Return URL file yang dapat diakses
         return res.status(200).json({
+            code: 200,
+            status: 'ok',
             message: 'File berhasil dimuat',
             fileUrl: fileUrl,
         });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ code: 500, status: 'internal_server_error', message: error.message });
     }
 };
 
@@ -229,21 +232,23 @@ exports.downloadModulFile = async (req, res) => {
 
         // Pengecekan apakah modul ada
         if (!modul) {
-            return res.status(404).json({ message: 'Modul Tidak Ditemukan' });
+            return res.status(404).json({ code: 404, status: 'not found', message: 'Modul Tidak Ditemukan' });
         }
 
         // Pastikan URL file tersedia
         if (!modul.fileUrl) {
-            return res.status(404).json({ message: 'File Tidak Ditemukan' });
+            return res.status(404).json({ code: 404, status: 'not found', message: 'File Tidak Ditemukan' });
         }
 
         // Kembalikan URL file
         res.status(200).json({
+            code: 200,
+            status: 'ok',
             message: 'File berhasil ditemukan',
             url: modul.fileUrl,
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ code: 500, status: 'internal_server_error', message: error.message });
     }
 };
 
@@ -254,7 +259,7 @@ exports.searchModul = async (req, res) => {
 
         // Jika tidak ada keyword, kirim response kosong
         if (!keyword) {
-            return res.status(400).json({ message: "Keyword tidak boleh kosong" });
+            return res.status(400).json({ code: 400, status: 'bad request', message: "Keyword tidak boleh kosong" });
         }
 
         const modulList = await Modul.findAll({
@@ -273,14 +278,16 @@ exports.searchModul = async (req, res) => {
         });
 
         if (modulList.length === 0) {
-            return res.status(404).json({ message: "Tidak dapat menemukan modul" });
+            return res.status(404).json({ code: 404, status: 'not found', message: "Tidak dapat menemukan modul" });
         }
 
         res.status(200).json({
+            code: 200,
+            status: 'success',
             message: "Berhasil menemukan modul",
             data: modulList
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ code: 500, status: 'internal_server_error', message: error.message });
     }
 };

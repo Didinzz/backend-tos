@@ -18,13 +18,12 @@ exports.getLastSeen = async (req, res) => {
         });
 
         if (!lastSeenData || lastSeenData.length === 0) {
-            return res.status(200).json({ message: 'Belum pernah melihat matakuliah' });
+            return res.status(200).json({ code: 200, status: 'ok', message: 'Belum pernah melihat matakuliah' });
         }
 
-        res.status(200).json({ message: 'Berhasil mengambil data last seen', data: lastSeenData });
+        res.status(200).json({ code: 200, status: 'ok', message: 'Berhasil mengambil data last seen', data: lastSeenData });
     } catch (error) {
-        console.error('Error fetching last seen:', error);
-        res.status(500).json({ message: 'Error fetching last seen' });
+        res.status(500).json({code: 500, status: 'internal_server_error', message: 'Error fetching last seen' });
     }
 }
 
@@ -59,7 +58,6 @@ exports.saveLastSeen = async (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error('Error saving last seen:', error);
-        res.status(500).json({ message: 'Error saving last seen' });
+        res.status(500).json({code: 500, status: 'internal_server_error', message: 'Error saving last seen' });
     }
 }
